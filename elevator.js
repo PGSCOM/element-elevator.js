@@ -58,17 +58,17 @@ var Elevator = function(options) {
 
     function getVerticalOffset(element) {
         var verticalOffset = 0;
-        while (element) {
+        while (element && element !== targetElement) {
             verticalOffset += element.offsetTop || 0;
             element = element.offsetParent;
         }
-
+    
         if (verticalPadding) {
             verticalOffset = verticalOffset - verticalPadding;
         }
-
+    
         return verticalOffset;
-    }
+    }    
 
     /**
      * Main
@@ -88,7 +88,7 @@ var Elevator = function(options) {
             duration
         );
 
-        window.scrollTo(0, easedPosition);
+        targetElement.scrollTop = easedPosition;
 
         if (timeSoFar < duration) {
             animation = requestAnimationFrame(animateLoop);
@@ -175,20 +175,19 @@ var Elevator = function(options) {
     }
 
     function onWindowBlur() {
-        // If animating, go straight to the top. And play no more music.
         if (elevating) {
             cancelAnimationFrame(animation);
             resetPositions();
-
+    
             if (mainAudio) {
                 mainAudio.pause();
                 mainAudio.currentTime = 0;
             }
-
+    
             updateEndPosition();
-            window.scrollTo(0, endPosition);
+            targetElement.scrollTop = endPosition;
         }
-    }
+    }    
 
     function bindElevateToElement(element) {
         if (element.addEventListener) {
@@ -242,7 +241,7 @@ var Elevator = function(options) {
             verticalPadding = _options.verticalPadding;
         }
 
-        window.addEventListener("blur", onWindowBlur, false);
+        targetElement.addEventListener("blur", onWindowBlur, false);
 
         if (_options.mainAudio) {
             mainAudio = new Audio(_options.mainAudio);
